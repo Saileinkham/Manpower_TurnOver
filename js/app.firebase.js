@@ -15,6 +15,7 @@ let curPage=1,pgSize=30,filteredE=[],editIdx=-1,charts={},rTarget=null,isDark=tr
 let lastInStamp=null,lastOutStamp=null;
 
 let db=null,auth=null,firebaseOk=false,appReady=false,appLoading=false;
+let syncBusy=false;
 
 const $=id=>document.getElementById(id);
 
@@ -46,6 +47,37 @@ async function loadUserProfile(user){
  if(!firebaseOk||!user)return null;
  try{const snap=await db.collection('users').doc(user.uid).get();return snap.exists?snap.data():null}catch(e){return null}
 }
+function cacheKey(){
+ const pid=window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.projectId?String(window.FIREBASE_CONFIG.projectId):'default';
+ return `hr_system_cache_${pid}_v1`
+}
+function saveCache(){
+ try{
+  const payload={
+   employees,
+   RS,
+   parData,
+   holdData,
+   lastInStamp:lastInStamp?lastInStamp.toISOString():null,
+   lastOutStamp:lastOutStamp?lastOutStamp.toISOString():null
+  };
+  localStorage.setItem(cacheKey(),JSON.stringify(payload))
+ }catch(e){}
+}
+function loadCache(){
+ try{
+  const raw=localStorage.getItem(cacheKey());
+  if(!raw)return false;
+  const d=JSON.parse(raw);
+  if(d&&Array.isArray(d.employees))employees=d.employees;
+  if(d&&Array.isArray(d.RS))RS=d.RS;
+  if(d&&d.parData&&typeof d.parData==='object')parData=d.parData;
+  if(d&&d.holdData&&typeof d.holdData==='object')holdData=d.holdData;
+  lastInStamp=d&&d.lastInStamp?new Date(d.lastInStamp):lastInStamp;
+  lastOutStamp=d&&d.lastOutStamp?new Date(d.lastOutStamp):lastOutStamp;
+  return true
+ }catch(e){return false}
+}
 function setUserUI(name,role){
  const nm=name||'User';
  $('userName').textContent=nm;
@@ -73,6 +105,7 @@ async function loadRemoteData(){
   const startDate=d.startDate||'';
   return{id:doc.id,name:d.name||'',nickname:d.nickname||'',branch:d.branch||BR[0],dept:d.dept||PD[d.position]||DP[0],position:d.position||PO[0],startDate,endDate:d.endDate||'',status:d.status||'ปัจจุบัน',gender:d.gender||'หญิง',tenureGroup:d.tenureGroup||calcT(startDate),resignReason:d.resignReason||'',note:d.note||''}
  })
+ saveCache()
 }
 async function onSignedIn(user){
  if(appLoading)return;
@@ -80,6 +113,7 @@ async function onSignedIn(user){
  try{
   const prof=await loadUserProfile(user);
   setUserUI((prof&&prof.name)||user.email||'User',(prof&&prof.role)||'ผู้ใช้งาน');
+  loadCache();
   await loadRemoteData();
   $('loginPage').style.display='none';
   $('app').classList.add('active');
@@ -111,6 +145,31 @@ $('loginPass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin()});
 document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>{document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));item.classList.add('active');const pg=item.dataset.page;document.querySelectorAll('.page-content').forEach(p=>p.classList.remove('active'));$('pg-'+pg).classList.add('active');$('pageTitle').textContent=item.textContent.trim();if(pg==='dashboard')renderDash();if(pg==='manpower')renderMP();if(pg==='config')renderConfig()}));
 function toggleSidebar(){$('sidebar').classList.toggle('open')}
 function toast(msg,type='success'){const c=$('toastC'),d=document.createElement('div');d.className='toast-item toast-'+type;d.innerHTML='<i class="fas fa-'+(type==='success'?'check-circle':type==='error'?'exclamation-circle':'info-circle')+'"></i>'+msg;c.appendChild(d);setTimeout(()=>d.remove(),3500)}
+
+async function saveToCloud(){
+ if(syncBusy)return;
+ if(!firebaseOk){toast('ยังไม่ได้เชื่อมต่อ Firebase','error');return}
+ syncBusy=true;
+ try{
+  await persistEmployeesInChunks(employees);
+  await persistConfig();
+  await persistMeta();
+  saveCache();
+  toast('บันทึกสำเร็จ','success')
+ }catch(e){toast('บันทึกไม่สำเร็จ','error')}
+ finally{syncBusy=false}
+}
+async function syncFromCloud(){
+ if(syncBusy)return;
+ if(!firebaseOk){toast('ยังไม่ได้เชื่อมต่อ Firebase','error');return}
+ syncBusy=true;
+ try{
+  await loadRemoteData();
+  refreshAll();
+  toast('อัปเดตข้อมูลล่าสุดแล้ว','info')
+ }catch(e){toast('อัปเดตไม่สำเร็จ','error')}
+ finally{syncBusy=false}
+}
 
 function initApp(){
  const now=new Date();$('todayBadge').textContent=now.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
