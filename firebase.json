@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "site": "manpower-turnover",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

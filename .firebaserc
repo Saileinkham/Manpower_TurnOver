@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "manpower-turnover"
+  },
+  "targets": {
+    "manpower-turnover": {
+      "hosting": {
+        "manpower-turnover": [
+          "manpower-turnover"
+        ]
+      }
+    }
+  }
+}
