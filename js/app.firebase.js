@@ -332,13 +332,9 @@ function dl(c,f,t){const b=new Blob([c],{type:t}),a=document.createElement('a');
 function openFilePicker(el){
  if(!el)return;
  el.value='';
- const doClick=()=>{
-  try{el.click()}catch(e){
-   try{el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}))}catch(e2){}
-  }
- };
- if(typeof requestAnimationFrame==='function')requestAnimationFrame(doClick);
- else setTimeout(doClick,0)
+ try{el.click()}catch(e){
+  try{el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}))}catch(e2){}
+ }
 }
 function pickImportCSV(){openFilePicker($('impCsv'))}
 function pickImportXLS(){openFilePicker($('impXls'))}
