@@ -1,0 +1,5 @@
+.DS_Store
+js/firebase-config.js
+js/app.js
+.firebase/
+firebase-debug.log*
