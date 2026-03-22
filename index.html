@@ -65,7 +65,7 @@
 <div class="page-content" id="pg-employees">
 <div class="table-card">
 <div class="table-header"><h3><i class="fas fa-database" style="color:var(--accent2)"></i> ฐานข้อมูลพนักงาน <span id="empCount" class="tag">0</span></h3>
-<div class="table-actions"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="ค้นหา..." id="empSearch" oninput="filterEmp()"></div><select class="filter-select" id="fBranch" onchange="filterEmp()"><option value="">ทุกสาขา</option></select><select class="filter-select" id="fDept" onchange="filterEmp()"><option value="">ทุกแผนก</option></select><select class="filter-select" id="fStatus" onchange="filterEmp()"><option value="">ทุกสถานะ</option><option>ปัจจุบัน</option><option>ออกแล้ว</option><option>แจ้งลาออก</option></select><button class="btn btn-green" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button><button class="btn btn-primary" onclick="exportXLS()"><i class="fas fa-file-excel"></i> Excel</button></div></div>
+<div class="table-actions"><div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="ค้นหา..." id="empSearch" oninput="filterEmp()"></div><select class="filter-select" id="fBranch" onchange="filterEmp()"><option value="">ทุกสาขา</option></select><select class="filter-select" id="fDept" onchange="filterEmp()"><option value="">ทุกแผนก</option></select><select class="filter-select" id="fStatus" onchange="filterEmp()"><option value="">ทุกสถานะ</option><option>ปัจจุบัน</option><option>ออกแล้ว</option><option>แจ้งลาออก</option></select><button class="btn" onclick="pickImportCSV()"><i class="fas fa-file-import"></i> Import CSV</button><button class="btn" onclick="pickImportXLS()"><i class="fas fa-file-import"></i> Import Excel</button><button class="btn btn-green" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button><button class="btn btn-primary" onclick="exportXLS()"><i class="fas fa-file-excel"></i> Excel</button><input type="file" id="impCsv" accept=".csv,text/csv" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" onchange="importCSVFile(this.files[0])"><input type="file" id="impXls" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/html" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" onchange="importExcelFile(this.files[0])"></div></div>
 <div class="table-scroll"><table><thead><tr><th>รหัส</th><th>ชื่อ-นามสกุล</th><th>ชื่อเล่น</th><th>สาขา</th><th>แผนก</th><th>ตำแหน่ง</th><th>วันเริ่ม</th><th>วันออก</th><th>สถานะ</th><th>เพศ</th><th>อายุงาน</th><th>จัดการ</th></tr></thead><tbody id="empBody"></tbody></table></div>
 <div class="pagination"><span id="empInfo"></span><div class="page-btns" id="empPages"></div></div>
 </div></div>
@@ -139,6 +139,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="js/app.firebase.js"></script>
 </body>
 </html>
